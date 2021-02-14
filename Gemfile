@@ -9,6 +9,8 @@ gem 'puma', '~> 3.11'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
 gem 'bootsnap', '>= 1.1.0', require: false
+gem 'rubocop-rails', require: false
+gem 'fast_jsonapi'
 
 group :development, :test do
   gem 'pry'
