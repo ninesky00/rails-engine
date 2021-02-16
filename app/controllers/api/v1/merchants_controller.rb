@@ -4,19 +4,11 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def show
-    render json: MerchantSerializer.new(Merchant.find(params[:id]))
-  end
-
-  def create
-    render json: Merchant.create(merchant_params)
-  end
-
-  def update
-    render json: Merchant.update(params[:id], merchant_params)
-  end
-
-  def destroy
-    render json: Merchant.destroy(params[:id])
+    if Merchant.exists?(params[:id])
+      render json: MerchantSerializer.new(Merchant.find(params[:id]))
+    else
+      render json: { error: "No merchant ID #{params[:id]}"}, status: 404
+    end
   end
 
   private 

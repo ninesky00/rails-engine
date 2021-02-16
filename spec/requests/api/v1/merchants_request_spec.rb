@@ -15,8 +15,8 @@ describe "Merchants API" do
       expect(merchant).to have_key(:id)
       expect(merchant[:id]).to be_an(String)
 
-      expect(merchant).to have_key(:name)
-      expect(merchant[:name]).to be_a(String)
+      expect(merchant[:attributes]).to have_key(:name)
+      expect(merchant[:attributes][:name]).to be_a(String)
     end
   end
 
@@ -45,46 +45,6 @@ describe "Merchants API" do
     # expect(json[:error]).to eq('resource could not be found')
   end
 
-  it "can create a new merchant" do
-    merchant_params = ({
-                    name: 'Express',
-                  })
-    headers = {"CONTENT_TYPE" => "application/json"}
-  
-    post "/api/v1/merchants", headers: headers, params: JSON.generate(merchant: merchant_params)
-    created_merchant = Merchant.last
-  
-    expect(response).to be_successful
-    expect(created_merchant.name).to eq(merchant_params[:name])
-  end
-
-  it "can update an existing book" do
-    id = create(:merchant).id
-    previous_name = Merchant.last.name
-    merchant_params = { name: "Amani" }
-    headers = {"CONTENT_TYPE" => "application/json"}
-  
-    # We include this header to make sure that these params are passed as JSON rather than as plain text
-    patch "/api/v1/merchants/#{id}", headers: headers, params: JSON.generate({merchant: merchant_params})
-    merchant = Merchant.find_by(id: id)
-  
-    expect(response).to be_successful
-    expect(merchant.name).to_not eq(previous_name)
-    expect(merchant.name).to eq("Amani")
-  end
-
-  it "can destroy an merchant" do
-    merchant = create(:merchant)
-  
-    expect(Merchant.count).to eq(1)
-  
-    delete "/api/v1/merchants/#{merchant.id}"
-  
-    expect(response).to be_successful
-    expect(Merchant.count).to eq(0)
-    expect{Merchant.find(merchant.id)}.to raise_error(ActiveRecord::RecordNotFound)
-  end
-
   it "can get all items for a given merchant ID" do 
     merchant = create(:merchant)
     items = create_list(:item, 5, merchant: merchant)
@@ -97,19 +57,19 @@ describe "Merchants API" do
 
     merchant_items[:data].each do |item|
       expect(item).to have_key(:id)
-      expect(item[:id]).to be_an(Integer)
+      expect(item[:id]).to be_an(String)
 
-      expect(item).to have_key(:name)
-      expect(item[:name]).to be_a(String)
+      expect(item[:attributes]).to have_key(:name)
+      expect(item[:attributes][:name]).to be_a(String)
 
-      expect(item).to have_key(:description)
-      expect(item[:description]).to be_a(String)
+      expect(item[:attributes]).to have_key(:description)
+      expect(item[:attributes][:description]).to be_a(String)
 
-      expect(item).to have_key(:unit_price)
-      expect(item[:unit_price]).to be_a(Numberic)
+      expect(item[:attributes]).to have_key(:unit_price)
+      expect(item[:attributes][:unit_price]).to be_a(Float)
 
-      expect(item).to have_key(:merchant_id)
-      expect(item[:merchant_id]).to be_a(Integer)
+      expect(item[:attributes]).to have_key(:merchant_id)
+      expect(item[:attributes][:merchant_id]).to be_a(Integer)
     end
   end
 end
