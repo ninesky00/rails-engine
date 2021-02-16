@@ -1,6 +1,6 @@
 class Api::V1::MerchantsController < ApplicationController
   def index
-    paginate render json: MerchantSerializer.new(Merchant.all), per_page: 20
+    render json: MerchantSerializer.new(Merchant.paginate(params[:per_page], params[:page]))
   end
 
   def show
@@ -8,15 +8,15 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def create
-    Merchant.create(merchant_params)
+    render json: Merchant.create(merchant_params)
   end
 
   def update
-    Merchant.update(params[:id], merchant_params)
+    render json: Merchant.update(params[:id], merchant_params)
   end
 
   def destroy
-    Merchant.destroy(params[:id])
+    render json: Merchant.destroy(params[:id])
   end
 
   private 
