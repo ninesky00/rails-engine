@@ -10,11 +10,4 @@ class Api::V1::MerchantsController < ApplicationController
       render json: { error: "No merchant ID #{params[:id]}"}, status: 404
     end
   end
-
-  private 
-
-  def merchant_params
-    params.require(:merchant).permit(:name)
-  end
-
 end

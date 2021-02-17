@@ -44,32 +44,58 @@ describe "Merchants API" do
     # expect(json).to have_key(:error)
     # expect(json[:error]).to eq('resource could not be found')
   end
+  describe "fetch merchant items" do 
+    it "can get all items for a given merchant ID" do 
+      merchant = create(:merchant)
+      items = create_list(:item, 5, merchant: merchant)
+      get "/api/v1/merchants/#{merchant.id}/items"
 
-  it "can get all items for a given merchant ID" do 
-    merchant = create(:merchant)
-    items = create_list(:item, 5, merchant: merchant)
-    get "/api/v1/merchants/#{merchant.id}/items"
+      expect(response).to be_successful
+      merchant_items = JSON.parse(response.body, symbolize_names: true)
 
-    expect(response).to be_successful
-    merchant_items = JSON.parse(response.body, symbolize_names: true)
+      expect(merchant_items[:data].count).to eq(5)
 
-    expect(merchant_items[:data].count).to eq(5)
+      merchant_items[:data].each do |item|
+        expect(item).to have_key(:id)
+        expect(item[:id]).to be_an(String)
 
-    merchant_items[:data].each do |item|
-      expect(item).to have_key(:id)
-      expect(item[:id]).to be_an(String)
+        expect(item[:attributes]).to have_key(:name)
+        expect(item[:attributes][:name]).to be_a(String)
 
-      expect(item[:attributes]).to have_key(:name)
-      expect(item[:attributes][:name]).to be_a(String)
+        expect(item[:attributes]).to have_key(:description)
+        expect(item[:attributes][:description]).to be_a(String)
 
-      expect(item[:attributes]).to have_key(:description)
-      expect(item[:attributes][:description]).to be_a(String)
+        expect(item[:attributes]).to have_key(:unit_price)
+        expect(item[:attributes][:unit_price]).to be_a(Float)
 
-      expect(item[:attributes]).to have_key(:unit_price)
-      expect(item[:attributes][:unit_price]).to be_a(Float)
+        expect(item[:attributes]).to have_key(:merchant_id)
+        expect(item[:attributes][:merchant_id]).to be_a(Integer)
+      end
+    end
 
-      expect(item[:attributes]).to have_key(:merchant_id)
-      expect(item[:attributes][:merchant_id]).to be_a(Integer)
+    it "will error to retrieve items if merchant does not exist in database" do 
+      merchant = create(:merchant)
+      items = create_list(:item, 5, merchant: merchant)
+      get "/api/v1/merchants/404/items"
+
+      expect(response.status).to eq(404)
+    end
+  end
+
+  describe "find_one search criteria" do 
+    it "can find a merchant based on search criteria" do 
+      merchant = create(:merchant, name: 'Hard to Find')
+
+      expected_attributes = {
+        name: merchant.name
+      }
+      get "/api/v1/merchants/find_one"
+      expect(response.status).to eq(200)
+      json = JSON.parse(response.body, symbolize_names: true)
+      expect(json[:data][:id]).to eq(merchant.id.to_s)
+      expected_attributes.each do |attribute, value|
+        expect(json[:data][:attributes][attribute]).to eq(value)
+      end
     end
   end
 end

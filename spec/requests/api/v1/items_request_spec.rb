@@ -77,6 +77,21 @@ describe "Items API" do
     expect(created_item.merchant_id).to eq(merchant.id)
   end
 
+  it "will error 409 if incorrect item_params" do
+    item_params = ({
+                    name: 'brick',
+                    description: 'expensive stone',
+                    unit_price: 500,
+                    merchant_id: 404,
+                  })
+    headers = {"CONTENT_TYPE" => "application/json"}
+  
+    post "/api/v1/items", headers: headers, params: JSON.generate({item: item_params})
+    created_item = Item.last
+  
+    expect(response.status).to eq(409)
+  end
+
   it "can update an existing item" do
     merchant = create(:merchant)
     id = create(:item, merchant: merchant).id
@@ -101,6 +116,24 @@ describe "Items API" do
     expect(item.merchant_id).to eq(merchant.id)
   end
 
+  it "will not update an existing item if missing merchant" do
+    id = create(:item).id
+    previous_name = Item.last.name
+    item_params = ({
+                    name: 'morter',
+                    description: 'no longer sustainable',
+                    unit_price: 2,
+                    merchant_id: 404,
+    })
+    headers = {"CONTENT_TYPE" => "application/json"}
+  
+    # We include this header to make sure that these params are passed as JSON rather than as plain text
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+    item = Item.find_by(id: id)
+  
+    expect(response.status).to eq(404)
+  end
+
   it "can destroy an item" do
     item = create(:item)
   
@@ -111,5 +144,31 @@ describe "Items API" do
     expect(response).to be_successful
     expect(Item.count).to eq(0)
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+  end
+  
+  describe "fetch item's merchant" do 
+    it "can get the merchant information for a given item ID" do 
+      merchant = create(:merchant)
+      item = create(:item, merchant: merchant)
+      get "/api/v1/items/#{item.id}/merchant"
+
+      expect(response).to be_successful
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+
+      expect(merchant[:data]).to have_key(:id)
+      expect(merchant[:data][:id]).to be_an(String)
+
+      expect(merchant[:data][:attributes]).to have_key(:name)
+      expect(merchant[:data][:attributes][:name]).to be_a(String)
+    end
+
+    it "will error to retrieve merchant if item does not exist in database" do 
+      merchant = create(:merchant)
+      items = create_list(:item, 5, merchant: merchant)
+      get "/api/v1/items/id/merchant"
+
+      expect(response.status).to eq(404)
+    end
   end
 end
