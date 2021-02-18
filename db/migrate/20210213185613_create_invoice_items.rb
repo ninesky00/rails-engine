@@ -5,7 +5,7 @@ class CreateInvoiceItems < ActiveRecord::Migration[5.2]
       t.references :invoice, foreign_key: true
       t.integer :quantity
       t.decimal :unit_price, precision: 9, scale: 2
-      t.integer :status
+      t.string :status
       t.timestamps
     end
   end

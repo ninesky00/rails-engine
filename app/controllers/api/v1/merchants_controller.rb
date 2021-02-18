@@ -19,11 +19,11 @@ class Api::V1::MerchantsController < ApplicationController
     end
   end
 
-  def most_revenue
-    if params[:quantity]
-      render json: MerchantSerializer.new(Merchant.top_merchants_by_revenue(params[:quantity]))
+  def most_items
+    if params[:quantity] && params[:quantity].to_i > 0
+      render json: MerchantNameItemSerializer.new(Merchant.most_items_sold(params[:quantity]))
     else
-      render json: { data: {}}
+      render json: { error: {}}, status: 400
     end
   end
 end
