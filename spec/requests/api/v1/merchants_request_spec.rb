@@ -82,14 +82,15 @@ describe "Merchants API" do
     end
   end
 
-  describe "find_one search criteria" do 
+  describe "find one merchant search criteria" do 
     it "can find a merchant based on search criteria" do 
       merchant = create(:merchant, name: 'Hard to Find')
 
       expected_attributes = {
         name: merchant.name
       }
-      get "/api/v1/merchants/find_one"
+      get "/api/v1/merchants/find?name=hard"
+      
       expect(response.status).to eq(200)
       json = JSON.parse(response.body, symbolize_names: true)
       expect(json[:data][:id]).to eq(merchant.id.to_s)

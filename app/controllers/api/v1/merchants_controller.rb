@@ -10,4 +10,13 @@ class Api::V1::MerchantsController < ApplicationController
       render json: { error: "No merchant ID #{params[:id]}"}, status: 404
     end
   end
+
+  def find
+    #implement if params[:name] = empty string
+    if params[:name]
+      render json: MerchantSerializer.new(Merchant.search(params[:name]))
+    else
+      render json: { error: "Invalid search"}, status: 404
+    end
+  end
 end
