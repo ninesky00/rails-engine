@@ -33,6 +33,16 @@ class Api::V1::ItemsController < ApplicationController
     render json: Item.destroy(params[:id])
   end
 
+  def find_all
+    if params[:name] && params[:name].length >= 3
+      render json: ItemSerializer.new(Item.search(params[:name]))
+    elsif params[:description]
+      render json: ItemSerializer.new(Item.search_description(params[:description]))
+    else
+      render json: { data: []}, status: 400
+    end
+  end
+
   private 
 
   def item_params

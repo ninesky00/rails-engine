@@ -12,11 +12,10 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def find
-    #implement if params[:name] = empty string
-    if params[:name]
+    if params[:name] && params[:name].length >= 3
       render json: MerchantSerializer.new(Merchant.search(params[:name]))
     else
-      render json: { error: "Invalid search"}, status: 404
+      render json: { data: {}}, status: 400
     end
   end
 end

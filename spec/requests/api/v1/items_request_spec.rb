@@ -145,7 +145,7 @@ describe "Items API" do
     expect(Item.count).to eq(0)
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
-  
+
   describe "fetch item's merchant" do 
     it "can get the merchant information for a given item ID" do 
       merchant = create(:merchant)
@@ -169,6 +169,47 @@ describe "Items API" do
       get "/api/v1/items/id/merchant"
 
       expect(response.status).to eq(404)
+    end
+  end
+
+  describe "find all items search criteria" do 
+    it "can find all items based on search criteria" do 
+      items = create_list(:item, 2, name: 'HarDer To Find')
+      item = create(:item, name: 'cannot be FouND')
+      expected_attributes1 = {
+        name: items[0].name,
+        description: items[0].description,
+        unit_price: items[0].unit_price,
+        merchant_id: items[0].merchant_id
+      }
+
+      expected_attributes2 = {
+        name: items[1].name,
+        description: items[1].description,
+        unit_price: items[1].unit_price,
+        merchant_id: items[1].merchant_id
+      }
+
+      get "/api/v1/items/find_all?name=hard"
+
+      expect(response.status).to eq(200)
+      json = JSON.parse(response.body, symbolize_names: true)
+      item1 = json[:data][0]
+      item2 = json[:data][1]
+      item3 = json[:data][2]
+
+      expect(item1[:id]).to eq(items[0].id.to_s)
+      expected_attributes1.each do |attribute, value|
+        expect(item1[:attributes][attribute]).to eq(value)
+      end
+
+      expect(item2[:id]).to eq(items[1].id.to_s)
+      expected_attributes2.each do |attribute, value|
+        expect(item2[:attributes][attribute]).to eq(value)
+      end
+      
+      expect(item3).to be_nil
+
     end
   end
 end
