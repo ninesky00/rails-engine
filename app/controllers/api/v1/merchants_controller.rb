@@ -15,7 +15,15 @@ class Api::V1::MerchantsController < ApplicationController
     if params[:name] && params[:name].length >= 3
       render json: MerchantSerializer.new(Merchant.search(params[:name]))
     else
-      render json: { data: {}}, status: 400
+      render json: { data: {}}
+    end
+  end
+
+  def most_revenue
+    if params[:quantity]
+      render json: MerchantSerializer.new(Merchant.top_merchants_by_revenue(params[:quantity]))
+    else
+      render json: { data: {}}
     end
   end
 end

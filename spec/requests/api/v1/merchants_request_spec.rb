@@ -90,7 +90,7 @@ describe "Merchants API" do
         name: merchant.name
       }
       get "/api/v1/merchants/find?name=hard"
-      
+
       expect(response.status).to eq(200)
       json = JSON.parse(response.body, symbolize_names: true)
       expect(json[:data][:id]).to eq(merchant.id.to_s)
@@ -98,5 +98,27 @@ describe "Merchants API" do
         expect(json[:data][:attributes][attribute]).to eq(value)
       end
     end
+  end
+
+  it "find merchants ranked by total revenue" do
+    merchant1 = create(:merchant)
+    merchant2 = create(:merchant)
+    merchant3 = create(:merchant)
+    item1 = create(:item, merchant: merchant1, unit_price: 100)
+    item2 = create(:item, merchant: merchant2, unit_price: 90)
+    item3 = create(:item, merchant: merchant3, unit_price: 80)
+    invoice1 = create(:invoice, merchant: merchant1)
+    invoice2 = create(:invoice, merchant: merchant2)
+    invoice3 = create(:invoice, merchant: merchant3)
+
+    create(:invoice_item, item: item1, invoice: invoice1, quantity: 1, unit_price: 100)
+    create(:invoice_item, item: item2, invoice: invoice2, quantity: 1, unit_price: 90)
+    create(:invoice_item, item: item3, invoice: invoice3, quantity: 1, unit_price: 80)
+
+    get "/api/v1/merchants/most_revenue?quantity=2"
+    expect(response.status). to eq(200)
+    merchants = JSON.parse(response.body, symbolize_names: true)
+    expect(merchants[:data][0][:id]).to eq(merchant1.id.to_s)
+    expect(merchants[:data][1][:id]).to eq(merchant2.id.to_s)
   end
 end

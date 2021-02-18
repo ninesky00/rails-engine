@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     namespace :v1 do 
       resources :merchants do 
         get 'find', on: :collection
+        get 'most_revenue', on: :collection
       end
       scope module: 'merchants', path: 'merchants/:id', as: 'merchants' do 
         resources :items, only: [:index]
