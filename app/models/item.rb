@@ -8,15 +8,11 @@ class Item < ApplicationRecord
       where('name ilike ?', "%#{query}%")
     end
 
-    def search_description(query)
-      where('description ilike ?', "%#{query}%")
-    end
-
     def most_revenue(num = 10)
       joins(invoices: :transactions)
       .select('items.*, sum(invoice_items.quantity * invoice_items.unit_price) as revenue')
-      .merge(Invoice.complete)
-      .merge(Transaction.success)
+      .where('invoices.status =?', "shipped")
+      .where('transactions.result = ?', "success")
       .group(:id)
       .order('revenue' => :desc)
       .limit(num)

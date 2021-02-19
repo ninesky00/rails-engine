@@ -36,20 +36,10 @@ class Api::V1::ItemsController < ApplicationController
   def find_all
     if params[:name] && params[:name].length >= 3
       render json: ItemSerializer.new(Item.search(params[:name]))
-    elsif params[:description]
-      render json: ItemSerializer.new(Item.search_description(params[:description]))
     else
       render json: { data: []}, status: 400
     end
   end
-
-  # def revenue
-  #   if params[:quantity].present? && params[:quantity].to_i > 0
-  #     render json: ItemRevenueSerializer.new(Item.most_revenue(params[:quantity]))
-  #   else 
-  #     render json: { error: 'Invalid search'}, status: 400
-  #   end
-  # end
 
   private 
 

@@ -9,7 +9,7 @@ class Api::V1::RevenueController < ApplicationController
 
   def revenue_period
     if params[:start].present? && params[:end].present?
-      render json: RevenueSerializer.format(Merchant.period_revenue(params[:start], params[:end]))
+      render json: RevenueSerializer.period(Merchant.period_revenue(params[:start], params[:end]))
     else 
       render json: { error: 'Invalid Search'}, status: 400
     end
@@ -21,5 +21,10 @@ class Api::V1::RevenueController < ApplicationController
     else 
       render json: { error: {}}, status: 400
     end
+  end
+
+  def unshipped
+    return render json: { error: {}}, status: 400 if params[:quantity].to_i < 1
+    render json: RevenueSerializer.unshipped_order(Invoice.unshipped_invoices(params[:quantity]))
   end
 end
