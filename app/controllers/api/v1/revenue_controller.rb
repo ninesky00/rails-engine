@@ -14,4 +14,12 @@ class Api::V1::RevenueController < ApplicationController
       render json: { error: 'Invalid Search'}, status: 400
     end
   end
+
+  def items
+    if params[:quantity] && params[:quantity].to_i > 0
+      render json: ItemRevenueSerializer.new(Item.most_revenue(params[:quantity]))
+    else 
+      render json: { error: {}}, status: 400
+    end
+  end
 end

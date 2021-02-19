@@ -218,7 +218,7 @@ describe "Merchants API" do
     data = JSON.parse(response.body, symbolize_names: true)
     data = data[:data]
     expect(data[:type]).to eq("merchant_revenue")
-    expect(data[:id]).to eq(merchant.id)
+    expect(data[:id]).to eq(merchant.id.to_s)
     expect(data[:attributes]).to have_key(:revenue)
     expect(data[:attributes][:revenue].to_f).to eq(((80 * 100) + (90 * 90) + (100 * 80)).to_f)
   end

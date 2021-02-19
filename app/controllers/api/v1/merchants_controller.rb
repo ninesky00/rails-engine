@@ -12,7 +12,7 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def find
-    if params[:name] && params[:name].length >= 3
+    if Merchant.search(params[:name]) && params[:name].length >= 3
       render json: MerchantSerializer.new(Merchant.search(params[:name]))
     else
       render json: { data: {}}

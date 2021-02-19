@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
       resources :items do 
         get 'find_all', on: :collection
+        get 'revenue', on: :collection  
       end
 
       scope module: 'items', path: 'items/:id', as: 'items' do 
@@ -19,6 +20,7 @@ Rails.application.routes.draw do
       end
 
       get 'revenue/merchants', to: 'revenue#merchants'
+      get 'revenue/items', to: 'revenue#items'
       get 'revenue', to: 'revenue#revenue_period'
       scope module: 'revenue', path: 'revenue' do 
         resources :merchants, only: [:show]

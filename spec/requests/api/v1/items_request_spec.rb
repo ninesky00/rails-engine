@@ -229,7 +229,7 @@ describe "Items API" do
       transaction = create(:transaction, invoice: invoice2, result: 'success')
       transaction = create(:transaction, invoice: invoice3, result: 'success')
   
-      get "/api/v1/items/revenue?quantity=2"
+      get "/api/v1/revenue/items?quantity=2"
       expect(response.status). to eq(200)
       data = JSON.parse(response.body, symbolize_names: true)
       data1, data2 = data[:data][0], data[:data][1]
