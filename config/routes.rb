@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       end
 
       get 'revenue/merchants', to: 'revenue#merchants'
+      get 'revenue', to: 'revenue#revenue_period'
     end
   end
 end

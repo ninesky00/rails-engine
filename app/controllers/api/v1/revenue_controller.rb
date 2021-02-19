@@ -6,4 +6,12 @@ class Api::V1::RevenueController < ApplicationController
       render json: { error: {}}, status: 400
     end
   end
+
+  def revenue_period
+    if params[:start].present? && params[:end].present?
+      render json: RevenueSerializer.format(Merchant.period_revenue(params[:start], params[:end]))
+    else 
+      render json: { error: 'Invalid Search'}, status: 400
+    end
+  end
 end

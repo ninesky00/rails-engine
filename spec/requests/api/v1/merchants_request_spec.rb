@@ -107,9 +107,9 @@ describe "Merchants API" do
     item1 = create(:item, merchant: merchant1, unit_price: 100)
     item2 = create(:item, merchant: merchant2, unit_price: 90)
     item3 = create(:item, merchant: merchant3, unit_price: 80)
-    invoice1 = create(:invoice, merchant: merchant1)
-    invoice2 = create(:invoice, merchant: merchant2)
-    invoice3 = create(:invoice, merchant: merchant3)
+    invoice1 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '1990-02-20')
+    invoice2 = create(:invoice, merchant: merchant2, status: 'shipped', updated_at: '2012-02-20')
+    invoice3 = create(:invoice, merchant: merchant3, status: 'shipped', updated_at: '2012-03-15')
     create(:invoice_item, item: item1, invoice: invoice1, quantity: 1, unit_price: 100)
     create(:invoice_item, item: item2, invoice: invoice2, quantity: 1, unit_price: 90)
     create(:invoice_item, item: item3, invoice: invoice3, quantity: 1, unit_price: 80)
@@ -122,6 +122,7 @@ describe "Merchants API" do
     expect(response.status). to eq(200)
     data = JSON.parse(response.body, symbolize_names: true)
     data1, data2 = data[:data][0], data[:data][1]
+
     expect(data1[:type]).to eq("merchant_name_revenue")
     expect(data1[:id]).to eq(merchant1.id.to_s)
     expect(data1[:attributes][:name]).to eq(merchant1.name)
@@ -140,9 +141,9 @@ describe "Merchants API" do
     item1 = create(:item, merchant: merchant1, unit_price: 100)
     item2 = create(:item, merchant: merchant2, unit_price: 90)
     item3 = create(:item, merchant: merchant3, unit_price: 80)
-    invoice1 = create(:invoice, merchant: merchant1)
-    invoice2 = create(:invoice, merchant: merchant2)
-    invoice3 = create(:invoice, merchant: merchant3)
+    invoice1 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '1990-02-20')
+    invoice2 = create(:invoice, merchant: merchant2, status: 'shipped', updated_at: '2012-02-20')
+    invoice3 = create(:invoice, merchant: merchant3, status: 'shipped', updated_at: '2012-03-15')
     create(:invoice_item, item: item1, invoice: invoice1, quantity: 80, unit_price: 100)
     create(:invoice_item, item: item2, invoice: invoice2, quantity: 90, unit_price: 90)
     create(:invoice_item, item: item3, invoice: invoice3, quantity: 100, unit_price: 80)
@@ -164,5 +165,61 @@ describe "Merchants API" do
     expect(data2[:id]).to eq(merchant2.id.to_s)
     expect(data2[:attributes][:name]).to eq(merchant2.name)
     expect(data2[:attributes]).to have_key(:count)
+  end
+
+  it "find total revenue across all merchants given date range" do 
+    merchant1 = create(:merchant)
+    merchant2 = create(:merchant)
+    merchant3 = create(:merchant)
+    item1 = create(:item, merchant: merchant1, unit_price: 100)
+    item2 = create(:item, merchant: merchant2, unit_price: 90)
+    item3 = create(:item, merchant: merchant3, unit_price: 80)
+    invoice1 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '1990-02-20')
+    invoice2 = create(:invoice, merchant: merchant2, status: 'shipped', updated_at: '2012-02-20')
+    invoice3 = create(:invoice, merchant: merchant3, status: 'shipped', updated_at: '2012-03-15')
+    create(:invoice_item, item: item1, invoice: invoice1, quantity: 80, unit_price: 100)
+    create(:invoice_item, item: item2, invoice: invoice2, quantity: 90, unit_price: 90)
+    create(:invoice_item, item: item3, invoice: invoice3, quantity: 100, unit_price: 80)
+
+    transaction = create(:transaction, invoice: invoice1, result: 'success')
+    transaction = create(:transaction, invoice: invoice2, result: 'success')
+    transaction = create(:transaction, invoice: invoice3, result: 'success')
+
+    get "/api/v1/revenue?start=2012-02-20&end=2012-03-15"
+
+    expect(response.status). to eq(200)
+    data = JSON.parse(response.body, symbolize_names: true)
+    revenue = data[:data]
+    expect(revenue[:type]).to eq("revenue")
+    expect(revenue[:id]).to be_nil
+    expect(revenue[:attributes]).to have_key(:revenue)
+    expect(revenue[:attributes][:revenue].to_f).to eq(((90 * 90) + (100 * 80)).to_f)
+  end
+
+  it "can find total revenue for a single merchant" do 
+    merchant = create(:merchant)
+    item1 = create(:item, merchant: merchant1, unit_price: 100)
+    item2 = create(:item, merchant: merchant2, unit_price: 90)
+    item3 = create(:item, merchant: merchant3, unit_price: 80)
+    invoice1 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '1990-02-20')
+    invoice2 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '2012-02-20')
+    invoice3 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '2012-03-15')
+    create(:invoice_item, item: item1, invoice: invoice1, quantity: 80, unit_price: 100)
+    create(:invoice_item, item: item2, invoice: invoice2, quantity: 90, unit_price: 90)
+    create(:invoice_item, item: item3, invoice: invoice3, quantity: 100, unit_price: 80)
+
+    transaction = create(:transaction, invoice: invoice1, result: 'success')
+    transaction = create(:transaction, invoice: invoice2, result: 'success')
+    transaction = create(:transaction, invoice: invoice3, result: 'success')
+
+    get "/api/v1/revenue/merchants/#{merchant.id}"
+
+    expect(response.status). to eq(200)
+    data = JSON.parse(response.body, symbolize_names: true)
+    data = data[:data]
+    expect(data[:type]).to eq("merchant_revenue")
+    expect(data[:id]).to eq(merchant.id)
+    expect(data[:attributes]).to have_key(:revenue)
+    expect(data[:attributes][:revenue].to_f).to eq(((80 * 100) + (90 * 90) + (100 * 80)).to_f)
   end
 end
