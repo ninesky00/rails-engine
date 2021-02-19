@@ -3,7 +3,7 @@ class Api::V1::Revenue::MerchantsController < ApplicationController
     if Merchant.exists?(params[:id])
       render json: MerchantRevenueSerializer.format(Merchant.find(params[:id]))
     else
-      render json: { error: "No merchant ID #{params[:id]}"}, status: 404
+      render json: { error: "No merchant ID #{params[:id]}" }, status: :not_found
     end
   end
 end
