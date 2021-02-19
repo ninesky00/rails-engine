@@ -20,6 +20,9 @@ Rails.application.routes.draw do
 
       get 'revenue/merchants', to: 'revenue#merchants'
       get 'revenue', to: 'revenue#revenue_period'
+      scope module: 'revenue', path: 'revenue' do 
+        resources :merchants, only: [:show]
+      end
     end
   end
 end

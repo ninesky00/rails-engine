@@ -209,7 +209,46 @@ describe "Items API" do
       end
       
       expect(item3).to be_nil
+    end
+  end
 
+  describe "non restful end points" do 
+    it "can find items ranked by revenue" do 
+      merchant = create(:merchant)
+      item1 = create(:item, merchant: merchant, unit_price: 80)
+      item2 = create(:item, merchant: merchant, unit_price: 90)
+      item3 = create(:item, merchant: merchant, unit_price: 100)
+      invoice1 = create(:invoice, merchant: merchant, status: 'shipped', updated_at: '1990-02-20')
+      invoice2 = create(:invoice, merchant: merchant, status: 'shipped', updated_at: '2012-02-20')
+      invoice3 = create(:invoice, merchant: merchant, status: 'shipped', updated_at: '2012-03-15')
+      create(:invoice_item, item: item1, invoice: invoice1, quantity: 1, unit_price: 80)
+      create(:invoice_item, item: item2, invoice: invoice2, quantity: 1, unit_price: 90)
+      create(:invoice_item, item: item3, invoice: invoice3, quantity: 1, unit_price: 100)
+  
+      transaction = create(:transaction, invoice: invoice1, result: 'success')
+      transaction = create(:transaction, invoice: invoice2, result: 'success')
+      transaction = create(:transaction, invoice: invoice3, result: 'success')
+  
+      get "/api/v1/items/revenue?quantity=2"
+      expect(response.status). to eq(200)
+      data = JSON.parse(response.body, symbolize_names: true)
+      data1, data2 = data[:data][0], data[:data][1]
+  
+      expect(data1[:type]).to eq("item_revenue")
+      expect(data1[:id]).to eq(item3.id.to_s)
+      expect(data1[:attributes][:name]).to eq(item3.name)
+      expect(data1[:attributes][:description]).to eq(item3.description)
+      expect(data1[:attributes][:unit_price]).to eq(item3.unit_price)
+      expect(data1[:attributes][:merchant_id]).to eq(merchant.id)
+      expect(data1[:attributes]).to have_key(:revenue)
+  
+      expect(data2[:type]).to eq("item_revenue")
+      expect(data2[:id]).to eq(item2.id.to_s)
+      expect(data2[:attributes][:name]).to eq(item2.name)
+      expect(data2[:attributes][:description]).to eq(item2.description)
+      expect(data2[:attributes][:unit_price]).to eq(item2.unit_price)
+      expect(data2[:attributes][:merchant_id]).to eq(merchant.id)
+      expect(data2[:attributes]).to have_key(:revenue)
     end
   end
 end

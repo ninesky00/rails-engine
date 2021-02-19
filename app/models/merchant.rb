@@ -35,5 +35,13 @@ class Merchant < ApplicationRecord
       .merge(Invoice.period(Date.parse(start_date).beginning_of_day, Date.parse(end_date).end_of_day))
       .sum('quantity * unit_price')
     end
+
+    def revenue(id)
+      joins(invoices: [:transactions, :invoice_items])
+      .merge(Invoice.complete)
+      .merge(Transaction.success)
+      .where('merchants.id =?', id)
+      .sum('quantity * unit_price')
+    end
   end
 end

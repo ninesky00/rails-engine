@@ -198,12 +198,12 @@ describe "Merchants API" do
 
   it "can find total revenue for a single merchant" do 
     merchant = create(:merchant)
-    item1 = create(:item, merchant: merchant1, unit_price: 100)
-    item2 = create(:item, merchant: merchant2, unit_price: 90)
-    item3 = create(:item, merchant: merchant3, unit_price: 80)
-    invoice1 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '1990-02-20')
-    invoice2 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '2012-02-20')
-    invoice3 = create(:invoice, merchant: merchant1, status: 'shipped', updated_at: '2012-03-15')
+    item1 = create(:item, merchant: merchant, unit_price: 100)
+    item2 = create(:item, merchant: merchant, unit_price: 90)
+    item3 = create(:item, merchant: merchant, unit_price: 80)
+    invoice1 = create(:invoice, merchant: merchant, status: 'shipped', updated_at: '1990-02-20')
+    invoice2 = create(:invoice, merchant: merchant, status: 'shipped', updated_at: '2012-02-20')
+    invoice3 = create(:invoice, merchant: merchant, status: 'shipped', updated_at: '2012-03-15')
     create(:invoice_item, item: item1, invoice: invoice1, quantity: 80, unit_price: 100)
     create(:invoice_item, item: item2, invoice: invoice2, quantity: 90, unit_price: 90)
     create(:invoice_item, item: item3, invoice: invoice3, quantity: 100, unit_price: 80)
