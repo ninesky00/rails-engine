@@ -24,8 +24,8 @@ class Api::V1::RevenueController < ApplicationController
   end
 
   def unshipped
-    return render json: { error: {} }, status: :bad_request if params[:quantity].to_i < 1
+    return render json: { error: {} }, status: :bad_request if params[:quantity].to_i.negative?
 
-    render json: RevenueSerializer.unshipped_order(Invoice.unshipped_invoices(params[:quantity]))
+    render json: UnshippedOrdersSerializer.new(Invoice.unshipped_invoices(params[:quantity]))
   end
 end
