@@ -11,7 +11,7 @@ class Api::V1::ItemsController < ApplicationController
     if Item.exists?(params[:id])
       render json: ItemSerializer.new(Item.find(params[:id]))
     else
-      render json: { error: "No merchant ID #{params[:id]}" }, status: :not_found
+      render json: { error: "No item ID #{params[:id]}" }, status: :not_found
     end
   end
 
