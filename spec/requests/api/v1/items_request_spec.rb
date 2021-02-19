@@ -29,6 +29,14 @@ describe "Items API" do
     end
   end
 
+  it "sad path sends a list of items" do
+    create_list(:item, 3)
+    get '/api/v1/items?per_page=-1'
+    expect(response.status).to eq(400)
+    get '/api/v1/items?page=-1'
+    expect(response.status).to eq(400)
+  end
+
   describe 'fetching a single item' do
     it 'succeeds when there is something to fetch' do
       item = create(:item)

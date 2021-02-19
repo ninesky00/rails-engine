@@ -39,10 +39,6 @@ describe "Merchants API" do
   it 'fails with 404 if merchant does not exist' do
     get api_v1_merchant_path(999999)
     expect(response.status).to eq(404)
-    # as an extension, you can make a custom error message, but a 404 with an empty "data" structure from the serializer is fine too
-    # json = JSON.parse(response.body, symbolize_names: true)
-    # expect(json).to have_key(:error)
-    # expect(json[:error]).to eq('resource could not be found')
   end
 
   describe "fetch merchant items" do 

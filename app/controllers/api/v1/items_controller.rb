@@ -1,6 +1,10 @@
 class Api::V1::ItemsController < ApplicationController
   def index
-    render json: ItemSerializer.new(Item.paginate(params[:per_page], params[:page]))
+    if params[:per_page].to_i < 0 || params[:page].to_i < 0
+      render json: {error: 'bad search query'}, status: :bad_request
+    else
+      render json: ItemSerializer.new(Item.paginate(params[:per_page], params[:page]))
+    end
   end
 
   def show
